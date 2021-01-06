@@ -1,0 +1,1730 @@
+//algogithms.h
+#pragma once
+#ifdef USE_OPENCV
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#endif  // USE_OPENCV
+#include "Halconcpp.h"
+#include <vector>
+using namespace HalconCpp;
+using namespace cv;
+using namespace std;
+
+void Detect(HObject &ho_Image, HObject &ImgOutput);
+void SelectMaxAreaRegion(HObject ho_Region, HObject *ho_MaxRegion);
+Mat HObject2Mat(HObject Hobj);
+HObject Mat2HObject(Mat& image);
+HObject DomainCrop(HObject &ImgSrc, int &nRowTop, int &nColLeft);
+
+
+
+// AreaDetect.h : PROJECT_NAME 应用程序的主头文件
+//
+#pragma once
+#ifndef __AFXWIN_H__
+	#error "在包含此文件之前包含“stdafx.h”以生成 PCH 文件"
+#endif
+#include "resource.h"		// 主符号
+// CAreaDetectApp: 
+// 有关此类的实现，请参阅 AreaDetect.cpp
+//
+class CAreaDetectApp : public CWinApp
+{
+public:
+	CAreaDetectApp();
+// 重写
+public:
+	virtual BOOL InitInstance();
+// 实现
+	DECLARE_MESSAGE_MAP()
+};
+extern CAreaDetectApp theApp;
+
+// AreaDetectDlg.h : 头文件
+//
+#pragma once
+#ifdef USE_OPENCV
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#endif  // USE_OPENCV
+#include "Halconcpp.h"
+#include "afxcmn.h"
+using namespace HalconCpp;
+using namespace cv;
+// CAreaDetectDlg 对话框
+class CAreaDetectDlg : public CDialogEx
+{
+// 构造
+public:
+	CAreaDetectDlg(CWnd* pParent = NULL);	// 标准构造函数
+	bool DisplayFullImage(HObject &ho_Image);
+	bool FCN_Detect();
+// 对话框数据
+#ifdef AFX_DESIGN_TIME
+	enum { IDD = IDD_AREADETECT_DIALOG };
+#endif
+
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
+
+
+// 实现
+protected:
+	HICON m_hIcon;
+	HTuple m_HWindowID;
+	HTuple m_ImageWidth, m_ImageHeight;
+	HObject m_Image;
+	HObject m_ImgOutput;
+	HObject m_RegOutput;
+	Mat m_MatImage;
+	double m_dDispImagePartRow0;
+	double m_dDispImagePartCol0;
+	double m_dDispImagePartRow1;
+	double m_dDispImagePartCol1;
+	bool bZoomFlag;
+
+
+	int m_nImageListCurrentItem;
+	bool m_bExchangeDispFlag;
+	CString m_strFilename;
+	std::vector<std::string> m_vfiles;
+	std::vector <std::string> m_vfullfiles;
+	// 生成的消息映射函数
+	virtual BOOL OnInitDialog();
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+	afx_msg void OnPaint();
+	afx_msg HCURSOR OnQueryDragIcon();
+	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedButtonOpenimg();
+	afx_msg void OnBnClickedButtonOpenfolder();
+	afx_msg void OnBnClickedButtonDetect();
+	afx_msg void OnBnClickedButtonExchangedip();
+//	afx_msg void OnBnClickedCheck5();
+//	afx_msg void OnEnChangeEdit2();
+	CListCtrl m_ImageList;
+//	afx_msg void OnLvnItemchangedList2(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClickList2(NMHDR *pNMHDR, LRESULT *pResult);
+//	afx_msg void OnLvnItemchangedList2(NMHDR *pNMHDR, LRESULT *pResult);
+//	afx_msg void OnHdnItemchangedList2(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchangedList2(NMHDR *pNMHDR, LRESULT *pResult);
+	CListCtrl m_RegionList;
+	afx_msg void OnBnClickedCheckModify();
+	afx_msg void OnBnClickedCheck3();
+	afx_msg void OnBnClickedCheck4();
+	double m_dEditRealLength;
+	double m_dEditResolution;
+	double m_dDistance;
+	afx_msg void OnEnChangeEdit1();
+	afx_msg void OnEnChangeEdit2();
+	afx_msg void OnBnClickedButtonOpenfolder4();
+	void UpdateAreaDisplayList();
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	bool ShowImage(HObject ho_Image);
+	afx_msg void OnBnClickedButtonDisplayfullimg();
+};
+
+// stdafx.h : 标准系统包含文件的包含文件，
+// 或是经常使用但不常更改的
+// 特定于项目的包含文件
+#pragma once
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN            // 从 Windows 头中排除极少使用的资料
+#endif
+#include "targetver.h"
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // 某些 CString 构造函数将是显式的
+// 关闭 MFC 对某些常见但经常可放心忽略的警告消息的隐藏
+#define _AFX_ALL_WARNINGS
+#include <afxwin.h>         // MFC 核心组件和标准组件
+#include <afxext.h>         // MFC 扩展
+#include <afxdisp.h>        // MFC 自动化类
+#ifndef _AFX_NO_OLE_SUPPORT
+#include <afxdtctl.h>           // MFC 对 Internet Explorer 4 公共控件的支持
+#endif
+#ifndef _AFX_NO_AFXCMN_SUPPORT
+#include <afxcmn.h>             // MFC 对 Windows 公共控件的支持
+#endif // _AFX_NO_AFXCMN_SUPPORT
+#include <afxcontrolbars.h>     // 功能区和控件条的 MFC 支持
+
+#include "stdafx.h"
+#include "algorithms.h"
+
+
+void SelectMaxAreaRegion(HObject ho_Region, HObject *ho_MaxRegion)
+{
+
+	// Local iconic variables
+	HObject  ho_ConnectedRegions1;
+
+	// Local control variables
+	HTuple  hv_Number, hv_Area4, hv_Row9, hv_Column9;
+	HTuple  hv_Max, hv_Index1;
+
+	//
+	Connection(ho_Region, &ho_ConnectedRegions1);
+	CountObj(ho_ConnectedRegions1, &hv_Number);
+	if (0 != (hv_Number == 1))
+	{
+		CopyObj(ho_Region, &(*ho_MaxRegion), 1, 1);
+		return;
+	}
+	AreaCenter(ho_ConnectedRegions1, &hv_Area4, &hv_Row9, &hv_Column9);
+	TupleMax(hv_Area4, &hv_Max);
+	TupleFindFirst(hv_Area4, hv_Max, &hv_Index1);
+	SelectObj(ho_ConnectedRegions1, &(*ho_MaxRegion), hv_Index1 + 1);
+	//
+	return;
+}
+
+void Detect(HObject &ho_Image, HObject &ImgOutput)
+{
+	bool bIsInit = ho_Image.IsInitialized();
+	if(!bIsInit)
+		return;
+	HTuple tCount;
+	CountObj(ho_Image, &tCount);
+	if (tCount == 0)
+		return;
+
+
+	HObject  ho_Image1, ho_Image2, ho_Image3;
+	HObject  ho_ImageSub1, ho_ImageSub2, ho_ImageResult, ho_Region;
+	HObject  ho_ImageResult1, ho_ImageResult2, ho_ImageResult3;
+	HObject  ho_Region4, ho_ConnectedRegions2, ho_ObjectSelected;
+	HObject  ho_RegionFillUp1, ho_ImageReduced, ho_ImageSub;
+	HObject  ho_Region2, ho_ConnectedRegions, ho_RegionTrans;
+	HObject  ho_c, ho_ImageMean, ho_RegionDilation1, ho_RegionDifference;
+	HObject  ho_ImageReduced1, ho_ImageZoom, ho_DerivGauss, ho_ImageScaleMax1;
+	HObject  ho_Region7, ho_RegionZoom, ho_ConnectedRegions3;
+	HObject  ho_RegionDilation, ho_ResultRegion, ho_ObjectSelected1;
+	HObject  ho_ImageReduced2, ho_Region8, ho_MaxRegion, ho_RegionClosing;
+	HObject  ho_RegionFillUp2;
+
+	// Local control variables
+	HTuple  hv_ImageFiles, hv_j, hv_Width, hv_Height;
+	HTuple  hv_Area, hv_Row, hv_Column, hv_Max, hv_Index, hv_Row1;
+	HTuple  hv_Column1, hv_Phi, hv_Length1, hv_Length2, hv_MaxLength;
+	HTuple  hv_resolution, hv_i, hv_UsedThreshold2, hv_Area1;
+	HTuple  hv_Row2, hv_Column2, hv_Number, hv_Deviation, hv_Mean;
+	HTuple  hv_Deviation1, hv_UsedThreshold3;
+
+	HTuple end_val3 = (hv_ImageFiles.TupleLength()) - 1;
+	HTuple step_val3 = 1;		
+	Decompose3(ho_Image, &ho_Image1, &ho_Image2, &ho_Image3);
+	SubImage(ho_Image1, ho_Image2, &ho_ImageSub1, 1, 0);
+	SubImage(ho_Image2, ho_Image3, &ho_ImageSub2, 1, 0);
+	AddImage(ho_ImageSub1, ho_ImageSub2, &ho_ImageResult, 1, 0);
+	Threshold(ho_ImageResult, &ho_Region, 12, 255);
+
+	TransFromRgb(ho_Image1, ho_Image2, ho_Image3, &ho_ImageResult1, &ho_ImageResult2,
+		&ho_ImageResult3, "hsv");
+	GetImageSize(ho_Image1, &hv_Width, &hv_Height);
+	//有效区域提取
+	Threshold(ho_Image1, &ho_Region4, 20, 255);
+	Connection(ho_Region4, &ho_ConnectedRegions2);
+	AreaCenter(ho_ConnectedRegions2, &hv_Area, &hv_Row, &hv_Column);
+	TupleMax(hv_Area, &hv_Max);
+	TupleFindFirst(hv_Area, hv_Max, &hv_Index);
+	SelectObj(ho_ConnectedRegions2, &ho_ObjectSelected, hv_Index + 1);
+	FillUp(ho_ObjectSelected, &ho_RegionFillUp1);
+	ReduceDomain(ho_Image, ho_RegionFillUp1, &ho_ImageReduced);
+
+	//reduce_domain (ImageResult2, RegionFillUp1, ImageReduced3)
+	//标尺提取
+	SubImage(ho_Image1, ho_Image2, &ho_ImageSub, 1, 0);
+	Threshold(ho_ImageSub, &ho_Region2, 40, 255);
+	Connection(ho_Region2, &ho_ConnectedRegions);
+	AreaCenter(ho_ConnectedRegions, &hv_Area, &hv_Row, &hv_Column);
+	TupleMax(hv_Area, &hv_Max);
+	TupleFindFirst(hv_Area, hv_Max, &hv_Index);
+	SelectObj(ho_ConnectedRegions, &ho_ObjectSelected, hv_Index + 1);
+	ShapeTrans(ho_ObjectSelected, &ho_RegionTrans, "rectangle2");
+	SmallestRectangle2(ho_RegionTrans, &hv_Row1, &hv_Column1, &hv_Phi, &hv_Length1,
+		&hv_Length2);
+	TupleMax2(hv_Length1, hv_Length2, &hv_MaxLength);
+
+	//分辨率：mm/pixel
+	if (0 != (hv_MaxLength == 0))
+	{
+		hv_resolution = 0;
+	}
+	else
+	{
+		hv_resolution = (1.0 * 10) / hv_MaxLength;
+	}
+
+
+
+	if (HDevWindowStack::IsOpen())
+		DispObj(ho_ImageReduced, HDevWindowStack::GetActive());
+	//svm
+	//gen_empty_obj (InsideRegion)
+	//gen_empty_obj (OutsideRegion)
+	//for i := 1 to 3 by 1
+	//draw_region (PolygonRegion, 200000)
+	//union2 (PolygonRegion, InsideRegion, InsideRegion)
+	//endfor
+
+	//for i := 1 to 3 by 1
+	//draw_region (PolygonRegion, 200000)
+	//union2 (PolygonRegion, OutsideRegion, OutsideRegion)
+	//endfor
+
+	//concat_obj (InsideRegion, OutsideRegion, Classes)
+	//create_class_gmm (3, 2, 1, 'spherical', 'normalization', 10, 42, GMMHandle)
+	//add_samples_image_class_gmm (Dsc0015, Classes, GMMHandle, 2.0)
+	//train_class_gmm (GMMHandle, 100, 0.001, 'training', 0.0001, Centers, Iter)
+
+	//clear_samples_class_gmm (GMMHandle)
+	//classify_image_class_gmm (Dsc0015, ClassRegions, GMMHandle, 0.0001)
+	//create_class_svm (3, 'rbf', 0.01, 0.0005, 1, 'novelty-detection', 'normalization', 3, SVMHandle)
+	//add_samples_image_class_svm (ImageReduced, InsideRegion, SVMHandle)
+	//add_samples_image_class_svm (ImageReduced, OutsideRegion, SVMHandle)
+	//train_class_svm (SVMHandle, 0.01, 'default')
+
+
+	//clear_samples_class_svm (SVMHandle)
+	//classify_image_class_svm (ImageReduced, ClassRegions, SVMHandle)
+	//region_to_mean (ClassRegions, Dsc0015, ImageClass)
+	SubImage(ho_Image1, ho_Image3, &ho_c, 1, 0);
+	MeanImage(ho_c, &ho_ImageMean, 19, 19);
+	DilationCircle(ho_RegionTrans, &ho_RegionDilation1, 21.5);
+	Difference(ho_RegionFillUp1, ho_RegionDilation1, &ho_RegionDifference);
+	ReduceDomain(ho_ImageMean, ho_RegionDifference, &ho_ImageReduced1);
+	ScaleImageMax(ho_ImageReduced1, &ho_ImageReduced1);
+	MedianImage(ho_ImageReduced1, &ho_ImageReduced1, "circle", 25, "mirrored");
+
+	ZoomImageSize(ho_ImageReduced1, &ho_ImageZoom, 512, 512, "constant");
+	DerivateGauss(ho_ImageZoom, &ho_DerivGauss, 19, "laplace");
+
+	ScaleImageMax(ho_DerivGauss, &ho_ImageScaleMax1);
+	//BinaryThreshold(ho_ImageScaleMax1, &ho_Region7, "max_separability", "dark", &hv_UsedThreshold2);
+	VarThreshold(ho_ImageScaleMax1, &ho_Region7, 200, 200, 0.5, 12, "dark");
+	ZoomRegion(ho_Region7, &ho_RegionZoom, (1.0*hv_Width) / 512, (1.0*hv_Height) / 512);
+	AreaCenter(ho_RegionZoom, &hv_Area1, &hv_Row2, &hv_Column2);
+	Connection(ho_RegionZoom, &ho_ConnectedRegions3);
+	DilationCircle(ho_ConnectedRegions3, &ho_RegionDilation, 301);
+
+	AreaCenter(ho_RegionDilation, &hv_Area1, &hv_Row2, &hv_Column2);
+
+	//regiongrowing_mean (ImageReduced3, Regions, Row2, Column2, 30, 70)
+
+	GenEmptyObj(&ho_ResultRegion);
+	CountObj(ho_ConnectedRegions3, &hv_Number);
+	{
+		HTuple end_val103 = hv_Number;
+		HTuple step_val103 = 1;
+		for (hv_i = 1; hv_i.Continue(end_val103, step_val103); hv_i += step_val103)
+		{
+			SelectObj(ho_RegionDilation, &ho_ObjectSelected1, hv_i);
+			ReduceDomain(ho_ImageResult, ho_ObjectSelected1, &ho_ImageReduced2);
+
+			PlaneDeviation(ho_ObjectSelected1, ho_ImageReduced2, &hv_Deviation);
+			Intensity(ho_ObjectSelected1, ho_ImageReduced2, &hv_Mean, &hv_Deviation1);
+			//fit_surface_first_order (ImageReduced2, ImageReduced2, 'huber', 3, 2, Alpha, Beta, Gamma)
+			//gen_image_surface_first_order (ImageSurface, 'byte', Alpha, Beta, Gamma, 256, 256, Width, Height)
+			//sub_image (ImageReduced2, ImageSurface, ImageSub1, 1, 0)
+
+			//edges_sub_pix (ImageReduced2, Edges, 'canny', 3, 5, 15)
+			//scale_image (ImageSub1, ImageScaled, 1, -30)
+			Threshold(ho_ImageReduced2, &ho_Region8, hv_Mean + (hv_Deviation / 2), 255);
+			BinaryThreshold(ho_ImageReduced2, &ho_Region8, "max_separability", "light",
+				&hv_UsedThreshold3);
+			SelectMaxAreaRegion(ho_Region8, &ho_MaxRegion);
+			ClosingCircle(ho_MaxRegion, &ho_RegionClosing, 13.5);
+			//shape_trans (MaxRegion, RegionTrans1, 'convex')
+			ConcatObj(ho_ResultRegion, ho_RegionClosing, &ho_ResultRegion);
+		}
+	}
+
+	FillUp(ho_ResultRegion, &ho_RegionFillUp2);
+
+	HObject Output1;
+	PaintRegion(ho_RegionFillUp2, ho_Image2, &Output1, 255, "fill");
+	Compose3(ho_Image1, Output1, ho_Image3, &ImgOutput);
+	
+	//var_threshold (ImageScaleMax1, Region6, 15, 15, 0.2, 10, 'light')
+	//scale_image_max (ImageReduced1, ImageScaleMax)
+	//intensity (RegionDifference, ImageScaleMax, Mean, Deviation)
+	//binary_threshold (ImageScaleMax, Region5, 'max_separability', 'light', UsedThreshold1)
+
+	//regiongrowing (c, Regions1, 3, 3, 1, 20)
+	//regiongrowing_mean (c, Regions, 2449, 2312, 12, 100)
+	//watersheds (c, Basins, Watersheds)
+	//watersheds_threshold (c, Basins1, 100)
+	//sub_image (Image2, Image3, ImageSub2, 1, 0)
+	//add_image (ImageSub1, ImageSub2, ImageResult, 0.5, 0)
+	//median_separate (c, ImageSMedian, 225, 225, 'mirrored')
+
+
+	//edges_image (ImageMean, ImaAmp, ImaDir, 'canny', 1, 'nms', 3, 8)
+	//sub_image (ImageResult, ImageSMedian, ImageSub2, 1, 0)
+	//binary_threshold (ImageSub2, Region3, 'max_separability', 'light', UsedThreshold)
+	//closing_circle (Region3, RegionClosing, 3.5)
+	//connection (RegionClosing, ConnectedRegions1)
+	//select_shape (ConnectedRegions1, SelectedRegions, ['circularity','area'], 'and', [0.3275,39610.4], [1,100000])
+	//fill_up (SelectedRegions, RegionFillUp)
+	//threshold (Image1, Region, 50, 255)
+	//var_threshold (Image3, Region1, 405, 405, 0.1, 18, 'dark')
+}
+Mat HObject2Mat(HObject Hobj)
+{
+	HTuple htCh = HTuple();
+	HTuple cType;
+	Mat Image;
+	ConvertImageType(Hobj, &Hobj, "byte");
+	CountChannels(Hobj, &htCh);
+	HTuple wid;
+	HTuple hgt;
+	int W, H;
+	if (htCh[0].I() == 1)
+	{
+		HTuple ptr;
+		GetImagePointer1(Hobj, &ptr, &cType, &wid, &hgt);
+		W = (Hlong)wid;
+		H = (Hlong)hgt;
+		Image.create(H, W, CV_8UC1);
+		uchar* pdata = (uchar*)ptr[0].L();
+		memcpy(Image.data, pdata, W*H);
+	}
+	else if (htCh[0].I() == 3)
+	{
+		HTuple ptrR, ptrG, ptrB;
+		GetImagePointer3(Hobj, &ptrR, &ptrG, &ptrB, &cType, &wid, &hgt);
+		W = (Hlong)wid;
+		H = (Hlong)hgt;
+		Image.create(H, W, CV_8UC3);
+		vector<Mat> vecM(3);
+		vecM[2].create(H, W, CV_8UC1);
+		vecM[1].create(H, W, CV_8UC1);
+		vecM[0].create(H, W, CV_8UC1);
+		uchar* pr = (uchar*)ptrR[0].L();
+		uchar* pg = (uchar*)ptrG[0].L();
+		uchar* pb = (uchar*)ptrB[0].L();
+		memcpy(vecM[2].data, pr, W*H);
+		memcpy(vecM[1].data, pg, W*H);
+		memcpy(vecM[0].data, pb, W*H);
+		merge(vecM, Image);
+	}
+	return Image;
+}
+
+HObject Mat2HObject(Mat& image)
+{
+	HObject Hobj = HObject();
+	int hgt = image.rows;
+	int wid = image.cols;
+	int i;
+	//	CV_8UC3
+	if (image.type() == CV_8UC3)
+	{
+		vector<Mat> imgchannel;
+		split(image, imgchannel);
+		Mat imgB = imgchannel[0];
+		Mat imgG = imgchannel[1];
+		Mat imgR = imgchannel[2];
+		uchar* dataR = new uchar[hgt*wid];
+		uchar* dataG = new uchar[hgt*wid];
+		uchar* dataB = new uchar[hgt*wid];
+		for (i = 0; i<hgt; i++)
+		{
+			memcpy(dataR + wid*i, imgR.data + imgR.step*i, wid);
+			memcpy(dataG + wid*i, imgG.data + imgG.step*i, wid);
+			memcpy(dataB + wid*i, imgB.data + imgB.step*i, wid);
+		}
+		GenImage3(&Hobj, "byte", wid, hgt, (Hlong)dataR, (Hlong)dataG, (Hlong)dataB);
+		delete[]dataR;
+		delete[]dataG;
+		delete[]dataB;
+		dataR = NULL;
+		dataG = NULL;
+		dataB = NULL;
+	}
+	//	CV_8UCU1
+	else if (image.type() == CV_8UC1)
+	{
+		uchar* data = new uchar[hgt*wid];
+		for (i = 0; i<hgt; i++)
+			memcpy(data + wid*i, image.data + image.step*i, wid);
+		GenImage1(&Hobj, "byte", wid, hgt, (Hlong)data);
+		delete[] data;
+		data = NULL;
+	}
+	return Hobj;
+}
+
+HObject DomainCrop(HObject &ImgSrc, int &nRowTop, int &nColLeft)
+{
+	HObject ho_Image1, ho_Image2, ho_Image3, ho_Region4, ho_ConnectedRegions2;
+	HObject ho_ObjectSelected, ho_RegionFillUp1, ho_RegionTrans, ho_ImageReduced, ho_ImagePart;
+	HTuple tRowTop, tColLeft;
+	Decompose3(ImgSrc, &ho_Image1, &ho_Image2, &ho_Image3);
+	//有效区域提取
+	Threshold(ho_Image1, &ho_Region4, 20, 255);
+	nColLeft = tColLeft.I();
+	ReduceDomain(ImgSrc, ho_RegionTrans, &ho_ImageReduced);
+	CropDomain(ho_ImageReduced, &ho_ImagePart);
+	return ho_ImagePart;
+}
+
+
+// AreaDetectDlg.cpp : 实现文件
+//
+#include <algorithm>
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+#include <io.h>
+#include <time.h>
+#include <iostream>
+#include <caffe/caffe.hpp>
+
+#ifdef USE_OPENCV
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#endif  // USE_OPENCV
+#include "stdafx.h"
+#include "AreaDetect.h"
+#include "AreaDetectDlg.h"
+#include "afxdialogex.h"
+#include <fstream>
+#include <iostream>
+#include "algorithms.h"
+
+using namespace caffe;  // NOLINT(build/namespaces)
+using namespace std;
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+using std::string;
+using namespace cv;
+
+/* Pair (label, confidence) representing a prediction. */
+typedef std::pair<std::string, float> Prediction;
+
+void getFiles(string path, string exd, vector<string>& files, vector<string> &fullfiles);
+void getFiles(string path, vector<string>& v_exd, vector<string>& files, vector<string> &fullfiles);
+class VOSSegmentation {
+public:
+	VOSSegmentation() {}
+	~VOSSegmentation() {}
+
+	void V_ss_init(string model_path, string weight_path);
+	vector<cv::Mat> V_ss_infer(cv::Mat image);
+	float V_resnet_infer(cv::Mat image);
+	void V_ss_close();
+
+	const vector<caffe::Blob<float>*>& defect_detection();
+	void image_preprocess(cv::Mat& origin_image);
+private:
+	//shared_ptr<Net<float> > caffe_net_;
+	caffe::Net<float> *caffe_net_;
+	vector<float> means_;
+	int im_h_;
+	int im_w_;
+	int im_chan_;
+	float* bottom_data_;
+};
+VOSSegmentation g_handle;
+const vector<caffe::Blob<float>*>& VOSSegmentation::defect_detection()
+{
+	//struct timeval start, end;
+	double start, end;
+	start = clock();
+
+	double timeuse = 0;
+	//gettimeofday(&start, NULL);
+	const vector<caffe::Blob<float>*>& result = caffe_net_->Forward(bottom_data_, NULL);
+	//gettimeofday(&end, NULL);
+	//timeuse = (end.tv_sec - start.tv_sec) * 1000000.f + (end.tv_usec - start.tv_usec);
+	//timeuse /= 1000.f;
+	end = clock();
+	timeuse = end - start;
+	std::cout << "foward time: " << timeuse << std::endl;
+	return result;
+}
+
+void VOSSegmentation::image_preprocess(cv::Mat& origin_image)
+{
+	const int image_width = origin_image.cols;
+	const int image_height = origin_image.rows;
+	const int channel = origin_image.channels();
+
+	std::vector<cv::Mat> channels(channel);
+	cv::split(origin_image, channels);
+
+	for (int c = 0; c < channel; ++c)
+	{
+		const uchar* dataPtr = channels[c].data;
+		for (int h = 0; h < image_height; ++h) {
+			for (int w = 0; w < image_width; ++w) {
+				bottom_data_[(c * image_height + h) * image_width + w] = static_cast<float>(dataPtr[h * image_width + w]) - means_[c];
+			}
+		}
+	}
+
+	return;
+}
+
+void VOSSegmentation::V_ss_init(string model_path, string weight_path)
+{
+	//Caffe::set_mode(Caffe::GPU);
+	//caffe_net_.reset(new Net<float>(model_path, caffe::TEST));
+	caffe_net_ = new caffe::Net<float>(model_path, caffe::TEST);
+	caffe_net_->CopyTrainedLayersFrom(weight_path);
+
+	means_.push_back(104.f);
+	means_.push_back(117.f);
+	means_.push_back(123.f);
+	im_w_ = 512;
+	im_h_ = 512;
+	im_chan_ = 3;
+	bottom_data_ = new float[im_chan_ * im_h_ * im_w_];
+
+	return;
+}
+float VOSSegmentation::V_resnet_infer(cv::Mat image)
+{
+	cv::Mat resImages;
+	const int im_height = image.rows;
+	const int im_width = image.cols;
+	const float h_scale = (float)im_height / im_h_;
+	const float w_scale = (float)im_width / im_w_;
+
+	cv::Mat resize_image;
+	cv::resize(image, resize_image, cv::Size(im_w_, im_h_), cv::INTER_LINEAR);
+	image_preprocess(resize_image);
+	const vector<caffe::Blob<float>*>& result = defect_detection();
+
+	const float* prob_data = result[0]->cpu_data();
+	//cv::Mat res_img(im_h_, im_w_, CV_8UC1, cv::Scalar::all(0));
+	float MaxProb = 0;
+	int nMaxIndex = 0;
+	for (int i = 0; i < 3; ++i) {
+		if (prob_data[i] >= MaxProb)
+		{
+			MaxProb = prob_data[i];
+			nMaxIndex = i;
+		}
+	}
+	return float(MaxProb + nMaxIndex);
+}
+vector<cv::Mat> VOSSegmentation::V_ss_infer(cv::Mat image)
+{
+	vector<cv::Mat> resImages;
+	const int im_height = image.rows;
+	const int im_width = image.cols;
+	const float h_scale = (float)im_height / im_h_;
+	const float w_scale = (float)im_width / im_w_;
+	const float* prob_data = result[0]->cpu_data();
+	cv::Mat res_img(im_h_, im_w_, CV_8UC1, cv::Scalar::all(0));
+	for (int i = 0; i < im_h_ * im_w_; ++i) {
+		if (prob_data[i] >= 0.001)
+			res_img.data[i] = prob_data[i] * 255;
+	}
+	resImages.push_back(res_img);
+	
+	return resImages;
+}
+
+void VOSSegmentation::V_ss_close()
+{
+	if (bottom_data_)
+	{
+		delete[] bottom_data_;
+		bottom_data_ = NULL;
+	}
+}
+
+void getFiles(string path, string exd, vector<string>& files, vector<string> &fullfiles)
+{
+	//文件句柄
+	long long  hFile = 0;
+	//文件信息
+	struct _finddata_t fileinfo;
+	string pathName, exdName;
+	//
+	if (0 != strcmp(exd.c_str(), ""))
+	{
+		exdName = "\\*." + exd;
+	}
+	else
+	{
+		exdName = "\\*";
+	}
+
+	if ((hFile = _findfirst(pathName.assign(path).append(exdName).c_str(), &fileinfo)) != -1)
+	{
+		do
+		{
+			////			//如果是文件夹中仍有文件夹,迭代之
+			////			//如果不是,加入列表
+			////			// 不推荐使用，硬要使用的话，需要修改else 里面的语句
+			if ((fileinfo.attrib &  _A_SUBDIR))
+			{
+				////			if(strcmp(fileinfo.name,".") != 0  &&  strcmp(fileinfo.name,"..") != 0)
+				////			getFiles( pathName.assign(path).append("\\").append(fileinfo.name), exd, files );
+			}
+			else
+			{
+				////				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+				fullfiles.push_back(pathName.assign(path).append("\\").append(fileinfo.name)); // 要得到绝对目录使用该语句
+																							   ////					//如果使用
+				files.push_back(fileinfo.name); // 只要得到文件名字使用该语句
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
+}
+
+void getFiles(string path, vector<string>& v_exd, vector<string>& files, vector<string> &fullfiles)
+{
+	//文件句柄
+	long long  hFile = 0;
+	//文件信息
+	struct _finddata_t fileinfo;
+	for (int i = 0; i < (int)v_exd.size(); i++)
+	{
+
+		string pathName, exdName;
+		if (0 != strcmp(v_exd[i].c_str(), ""))
+		{
+			exdName = "\\*." + v_exd[i];
+		}
+		else
+		{
+			exdName = "\\*";
+		}
+
+		if ((hFile = _findfirst(pathName.assign(path).append(exdName).c_str(), &fileinfo)) != -1)
+		{
+			do
+			{
+				////			//如果是文件夹中仍有文件夹,迭代之
+				////			//如果不是,加入列表
+				////			// 不推荐使用，硬要使用的话，需要修改else 里面的语句
+				if ((fileinfo.attrib &  _A_SUBDIR))
+				{
+					////			if(strcmp(fileinfo.name,".") != 0  &&  strcmp(fileinfo.name,"..") != 0)
+					////			getFiles( pathName.assign(path).append("\\").append(fileinfo.name), exd, files );
+				}
+				else
+				{
+					////				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+					fullfiles.push_back(pathName.assign(path).append("\\").append(fileinfo.name)); // 要得到绝对目录使用该语句
+																								   ////					//如果使用
+					files.push_back(fileinfo.name); // 只要得到文件名字使用该语句
+				}
+			} while (_findnext(hFile, &fileinfo) == 0);
+			_findclose(hFile);
+		}
+
+	}
+}
+// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
+
+class CAboutDlg : public CDialogEx
+{
+public:
+	CAboutDlg();
+
+// 对话框数据
+#ifdef AFX_DESIGN_TIME
+	enum { IDD = IDD_ABOUTBOX };
+#endif
+
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+// 实现
+protected:
+	DECLARE_MESSAGE_MAP()
+};
+
+CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
+{
+}
+
+void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+END_MESSAGE_MAP()
+
+
+// CAreaDetectDlg 对话框
+
+
+
+CAreaDetectDlg::CAreaDetectDlg(CWnd* pParent /*=NULL*/)
+	: CDialogEx(IDD_AREADETECT_DIALOG, pParent)
+	, m_dEditRealLength(1.0)
+	, m_dEditResolution(1.0)
+	, m_dDistance(1.0)
+	, bZoomFlag(true)
+{
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_bExchangeDispFlag = true;
+	m_nImageListCurrentItem = -1;
+}
+
+void CAreaDetectDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LIST2, m_ImageList);
+	DDX_Control(pDX, IDC_LIST1, m_RegionList);
+}
+
+BEGIN_MESSAGE_MAP(CAreaDetectDlg, CDialogEx)
+	ON_WM_SYSCOMMAND()
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &CAreaDetectDlg::OnLvnItemchangedList1)
+	ON_BN_CLICKED(IDC_BUTTON_OPENIMG, &CAreaDetectDlg::OnBnClickedButtonOpenimg)
+	ON_BN_CLICKED(IDC_BUTTON_OPENFOLDER, &CAreaDetectDlg::OnBnClickedButtonOpenfolder)
+	ON_BN_CLICKED(IDC_BUTTON_DETECT, &CAreaDetectDlg::OnBnClickedButtonDetect)
+	ON_BN_CLICKED(IDC_BUTTON_EXCHANGEDIP, &CAreaDetectDlg::OnBnClickedButtonExchangedip)
+	ON_NOTIFY(NM_CLICK, IDC_LIST2, &CAreaDetectDlg::OnNMClickList2)
+ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST2, &CAreaDetectDlg::OnLvnItemchangedList2)
+ON_BN_CLICKED(IDC_CHECK_MODIFY, &CAreaDetectDlg::OnBnClickedCheckModify)
+ON_BN_CLICKED(IDC_CHECK3, &CAreaDetectDlg::OnBnClickedCheck3)
+ON_BN_CLICKED(IDC_CHECK4, &CAreaDetectDlg::OnBnClickedCheck4)
+ON_EN_CHANGE(IDC_EDIT1, &CAreaDetectDlg::OnEnChangeEdit1)
+ON_EN_CHANGE(IDC_EDIT2, &CAreaDetectDlg::OnEnChangeEdit2)
+ON_BN_CLICKED(IDC_BUTTON_OPENFOLDER4, &CAreaDetectDlg::OnBnClickedButtonOpenfolder4)
+ON_WM_MOUSEWHEEL()
+ON_BN_CLICKED(IDC_BUTTON_DISPLAYFULLIMG, &CAreaDetectDlg::OnBnClickedButtonDisplayfullimg)
+END_MESSAGE_MAP()
+
+
+// CAreaDetectDlg 消息处理程序
+
+BOOL CAreaDetectDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+	CString str;
+	str.Format("%f", m_dEditRealLength);
+	SetDlgItemText(IDC_EDIT1, str);
+	str.Format("%f", m_dEditResolution);
+	SetDlgItemText(IDC_EDIT2, str);
+	str.Format("%f", m_dDistance);
+	SetDlgItemText(IDC_EDIT3, str);
+	// 将“关于...”菜单项添加到系统菜单中。
+
+	// IDM_ABOUTBOX 必须在系统命令范围内。
+	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
+	ASSERT(IDM_ABOUTBOX < 0xF000);
+
+	CMenu* pSysMenu = GetSystemMenu(FALSE);
+	if (pSysMenu != NULL)
+	{
+		BOOL bNameValid;
+		CString strAboutMenu;
+		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
+		ASSERT(bNameValid);
+		if (!strAboutMenu.IsEmpty())
+		{
+			pSysMenu->AppendMenu(MF_SEPARATOR);
+			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+		}
+	}
+
+	// 设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
+	//  执行此操作
+	SetIcon(m_hIcon, TRUE);			// 设置大图标
+	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
+	m_ImageList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_ONECLICKACTIVATE);
+	m_ImageList.InsertColumn(0, _T("序号"), LVCFMT_CENTER, 36);
+	m_ImageList.InsertColumn(1, _T("文件名"), LVCFMT_LEFT, 400);
+
+	m_RegionList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_ONECLICKACTIVATE);
+	m_RegionList.InsertColumn(0, _T("序号"), LVCFMT_CENTER, 36);
+	m_RegionList.InsertColumn(1, _T("面积"), LVCFMT_LEFT, 200);
+
+	// TODO: 在此添加额外的初始化代码
+	HTuple HWindowID;
+	CRect Rect;
+	CWnd * pWnd = GetDlgItem(IDC_STATIC);
+	HWindowID = (Hlong)pWnd->m_hWnd;//获取窗口句柄
+	pWnd->GetWindowRect(&Rect);
+	OpenWindow(0, 0, Rect.Width(), Rect.Height(), HWindowID, "visible", "", &m_HWindowID);
+
+	string model_path = "inference.prototxt";
+	string weight_path = "LesionSurvey.caffemodel";
+	//加载模型
+	g_handle.V_ss_init(model_path, weight_path);
+
+	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
+}
+
+void CAreaDetectDlg::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
+	{
+		CAboutDlg dlgAbout;
+		dlgAbout.DoModal();
+	}
+	else
+	{
+		CDialogEx::OnSysCommand(nID, lParam);
+	}
+}
+
+// 如果向对话框添加最小化按钮，则需要下面的代码
+//  来绘制该图标。  对于使用文档/视图模型的 MFC 应用程序，
+//  这将由框架自动完成。
+
+void CAreaDetectDlg::OnPaint()
+{
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // 用于绘制的设备上下文
+
+		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+
+		// 使图标在工作区矩形中居中
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
+
+		// 绘制图标
+		dc.DrawIcon(x, y, m_hIcon);
+	}
+	else
+	{
+		CDialogEx::OnPaint();
+	}
+}
+
+//当用户拖动最小化窗口时系统调用此函数取得光标
+//显示。
+HCURSOR CAreaDetectDlg::OnQueryDragIcon()
+{
+	return static_cast<HCURSOR>(m_hIcon);
+}
+
+
+
+void CAreaDetectDlg::OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+}
+
+
+void CAreaDetectDlg::OnBnClickedButtonOpenimg()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog dlg(TRUE, NULL, NULL,
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		NULL);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		m_strFilename = dlg.GetPathName();
+		
+		//m_vfullfiles.clear();
+		//m_vfullfiles.push_back(m_szFilename.GetBuffer());
+		//::MessageBox(NULL,m_szFilename,NULL,MB_OK);
+		//m_ImageList.DeleteAllItems();
+
+		int nItemCount = m_ImageList.GetItemCount();
+		CString strIndex;
+		strIndex.Format("%d", nItemCount+1);
+		m_nImageListCurrentItem = m_ImageList.InsertItem(nItemCount, strIndex);
+		m_ImageList.SetItemText(m_nImageListCurrentItem, 1, m_strFilename);
+		m_ImageList.SetItemState(m_nImageListCurrentItem, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
+		GetDlgItem(IDC_STATIC_IMGPATH)->SetWindowText("当前图片：" + m_ImageList.GetItemText(m_nImageListCurrentItem, 1));
+		//halcon read_image函数读取jpg格式图片时获取的长款会与资源管理器读取的长宽颠倒
+		//所以使用opencv imread读取后转换成hobject
+		//ReadImage(&m_Image, m_strFilename.GetBuffer());
+		Mat img;
+		img = imread(m_strFilename.GetBuffer());
+		//CString str;
+		//str.Format("w:%d, h:%d", img.cols, img.rows);
+		//::MessageBox(NULL, str, "提示", MB_OK); 
+		m_Image = Mat2HObject(img);
+		DisplayFullImage(m_Image);
+		m_RegionList.DeleteAllItems();
+
+	}
+
+}
+
+
+void CAreaDetectDlg::OnBnClickedButtonOpenfolder()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	static TCHAR strDirName[MAX_PATH];
+	BROWSEINFO bi;
+	CString szString = TEXT("选择文件夹");
+	bi.hwndOwner = ::GetFocus();
+	bi.pidlRoot = NULL;
+	bi.pszDisplayName = strDirName;
+	bi.lpszTitle = szString;
+	bi.ulFlags = BIF_BROWSEFORCOMPUTER | BIF_DONTGOBELOWDOMAIN | BIF_RETURNONLYFSDIRS;
+	bi.lpfn = NULL;
+	bi.lParam = 0;
+	bi.iImage = 0;
+
+	LPITEMIDLIST pItemIDList = ::SHBrowseForFolder(&bi);
+	if (pItemIDList == NULL)
+	{
+		return;
+	}
+	::SHGetPathFromIDList(pItemIDList, strDirName);
+	m_vfiles.clear();
+	m_vfullfiles.clear();
+	vector<string> v_exd;
+	v_exd.push_back("jpg");
+	v_exd.push_back("jpeg");
+	v_exd.push_back("bmp");
+	v_exd.push_back("png");
+	getFiles(strDirName, v_exd, m_vfiles, m_vfullfiles);
+	if (m_vfiles.size() == 0)
+		return;
+	m_ImageList.DeleteAllItems();
+	for (int i = 0; i < (int)m_vfullfiles.size(); i++)
+	{
+		int nItemCount = m_ImageList.GetItemCount();
+		CString strIndex;
+		strIndex.Format("%d", nItemCount + 1);
+		int pos = m_ImageList.InsertItem(nItemCount, strIndex);
+		m_ImageList.SetItemText(pos, 1, m_vfullfiles[i].c_str());
+	}
+	m_nImageListCurrentItem = 0;
+	m_ImageList.SetItemState(m_nImageListCurrentItem, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
+	GetDlgItem(IDC_STATIC_IMGPATH)->SetWindowText("当前图片：" + m_ImageList.GetItemText(m_nImageListCurrentItem, 1));
+	m_strFilename = m_vfullfiles[0].c_str();
+	Mat img;
+	img = imread(m_strFilename.GetBuffer());
+	m_Image = Mat2HObject(img);
+	m_ImgOutput = m_Image;
+	//ReadImage(&m_Image, m_strFilename.GetBuffer());
+	DisplayFullImage(m_Image);
+	GenEmptyObj(&m_RegOutput);
+	m_RegionList.DeleteAllItems();
+}
+
+bool CAreaDetectDlg::DisplayFullImage(HObject &ho_Image)
+{
+	//ReadImage(&ho_Image, "G:\\白菜坏死面积提取\\病斑大小测定\\DSC_0607.JPG");
+	bool bIsInit = ho_Image.IsInitialized();
+	if (!bIsInit)
+		return false;
+	HTuple tCount;
+	CountObj(ho_Image, &tCount);
+	if (tCount == 0)
+		return false;
+	GetImageSize(ho_Image, &m_ImageWidth, &m_ImageHeight);
+
+	//设置窗口
+	CRect Rect;
+	CWnd * pWnd = GetDlgItem(IDC_STATIC);
+	pWnd->GetWindowRect(&Rect);
+	float fImage = m_ImageWidth.D() / m_ImageHeight.D();
+	float fWindow = (float)Rect.Width() / Rect.Height();
+	float Row0 = 0, Col0 = 0, Row1 = m_ImageWidth - 1, Col1 = m_ImageHeight - 1;
+	if (fWindow > fImage)
+	{
+		float w = fWindow * m_ImageHeight;
+		Row0 = 0;
+		Col0 = -(w - m_ImageWidth) / 2;
+		Row1 = m_ImageHeight - 1;
+		Col1 = m_ImageWidth + (w - m_ImageWidth) / 2;
+	}
+	else
+	{
+		float h = m_ImageWidth / fWindow;
+		Row0 = -(h - m_ImageHeight) / 2;
+		Col0 = 0;
+		Row1 = m_ImageHeight + (h - m_ImageHeight) / 2;
+		Col1 = m_ImageWidth - 1;
+	}
+
+	m_dDispImagePartRow0 = Row0;
+	m_dDispImagePartCol0 = Col0;
+	m_dDispImagePartRow1 = Row1;
+	m_dDispImagePartCol1 = Col1;
+	ShowImage(ho_Image);
+	//GetImagePointer1(ho_Image, NULL, NULL, &m_ImageWidth, &m_ImageHeight);
+	//HTuple tMax;
+	//TupleMax2(m_ImageWidth, m_ImageHeight, &tMax);
+	/*m_dDispImagePartRow0 = 0;
+	return true;
+}
+
+
+void  FindCorkDefect(const HObject &image, HTuple modelID, HTuple &phi1, HTuple &phi2, HObject & line1, HObject & line2, bool &flag)
+{
+	phi1 = HTuple();
+	phi2 = HTuple();
+	line1 = HObject();
+	line2 = HObject();
+	flag = true;
+
+	HObject  ho_Regions, ho_ConnectedRegions, ho_SelectedRegions, ho_RegionTrans, ho_RegionFillUp, ho_ImageReduced;
+	HObject  ho_RegionAffineTrans1, ho_p1, ho_Region1;
+	HObject  ho_RegionTrans1, ho_Contours1, ho_ContoursSplit1;
+	HObject  ho_RegionAffineTrans2, ho_p2, ho_Region2, ho_RegionTrans2;
+	HObject  ho_Contours2, ho_ContoursSplit2, ho_UnionContours1, ho_UnionContours2;
+	HObject  ho_SelectedContours1, ho_SelectedContours2;
+	HTuple  hv_Area, hv_Row, hv_Column;
+	HTuple  hv_Row1, hv_Column1, hv_Angle, hv_Score, hv_Length;
+	HTuple  hv_HomMat2D1, hv_UsedThreshold, hv_RowBegin1, hv_ColBegin1;
+	HTuple  hv_RowEnd1, hv_ColEnd1, hv_Nr, hv_Nc, hv_Dist, hv_row1;
+	HTuple  hv_Min1, hv_N1, hv_HomMat2D2, hv_RowBegin2, hv_ColBegin2;
+	HTuple  hv_RowEnd2, hv_ColEnd2, hv_row2, hv_Min2, hv_N2;
+
+	HObject roi;
+	GenRectangle1(&roi, 528.567, 733.9, 642.913, 957.9);
+	AreaCenter(roi, &hv_Area, &hv_Row, &hv_Column);
+	Threshold(image, &ho_Regions, 81, 255);
+	Connection(ho_Regions, &ho_ConnectedRegions);
+	SelectShapeStd(ho_ConnectedRegions, &ho_SelectedRegions, "max_area", 70);
+	ShapeTrans(ho_SelectedRegions, &ho_RegionTrans, "convex");
+	FillUp(ho_RegionTrans, &ho_RegionFillUp);
+	ReduceDomain(image, ho_RegionFillUp, &ho_ImageReduced);
+
+	FindNccModel(ho_ImageReduced, modelID, -0.39, 0.78, 0.5, 2, 0.5, "true", 0,
+		&hv_Row1, &hv_Column1, &hv_Angle, &hv_Score);
+	if (0 != (hv_Score > 0))
+	{
+		flag = true;
+		TupleLength(hv_Score, &hv_Length);
+		VectorAngleToRigid(hv_Row, hv_Column, 0, HTuple(hv_Row1[0]), HTuple(hv_Column1[0]),
+			0, &hv_HomMat2D1);
+		AffineTransRegion(roi, &ho_RegionAffineTrans1, hv_HomMat2D1, "nearest_neighbor");
+		ReduceDomain(ho_ImageReduced, ho_RegionAffineTrans1, &ho_p1);
+		BinaryThreshold(ho_p1, &ho_Region1, "max_separability", "dark", &hv_UsedThreshold);
+		ShapeTrans(ho_Region1, &ho_RegionTrans1, "convex");
+		GenContourRegionXld(ho_RegionTrans1, &ho_Contours1, "border");
+		SegmentContoursXld(ho_Contours1, &ho_ContoursSplit1, "lines_circles", 5, 4, 2);
+		UnionCollinearContoursXld(ho_ContoursSplit1, &ho_UnionContours1, 10, 1, 10, 0.3,
+			"attr_keep");
+		SelectContoursXld(ho_UnionContours1, &ho_SelectedContours1, "contour_length",
+			100, 2000, -0.5, 0.5);
+		FitLineContourXld(ho_SelectedContours1, "tukey", -1, 0, 5, 2, &hv_RowBegin1,
+			&hv_ColBegin1, &hv_RowEnd1, &hv_ColEnd1, &hv_Nr, &hv_Nc, &hv_Dist);
+		hv_row1 = hv_RowBegin1 + hv_RowEnd1;
+		TupleMin(hv_row1, &hv_Min1);
+		TupleFind(hv_row1, hv_Min1, &hv_N1);
+		GenRegionLine(&line1, HTuple(hv_RowBegin1[hv_N1]), HTuple(hv_ColBegin1[hv_N1]),
+			HTuple(hv_RowEnd1[hv_N1]), HTuple(hv_ColEnd1[hv_N1]));
+		LineOrientation(HTuple(hv_RowBegin1[hv_N1]), HTuple(hv_ColBegin1[hv_N1]), HTuple(hv_RowEnd1[hv_N1]),
+			HTuple(hv_ColEnd1[hv_N1]), &phi1);
+		if (0 != (hv_Length == 2))
+		{
+			VectorAngleToRigid(hv_Row, hv_Column, 0, HTuple(hv_Row1[1]), HTuple(hv_Column1[1]),
+				0, &hv_HomMat2D2);
+			AffineTransRegion(roi, &ho_RegionAffineTrans2, hv_HomMat2D2, "nearest_neighbor");
+			ReduceDomain(ho_ImageReduced, ho_RegionAffineTrans2, &ho_p2);
+			BinaryThreshold(ho_p2, &ho_Region2, "max_separability", "dark", &hv_UsedThreshold);
+			ShapeTrans(ho_Region2, &ho_RegionTrans2, "convex");
+			GenContourRegionXld(ho_RegionTrans2, &ho_Contours2, "border");
+			SegmentContoursXld(ho_Contours2, &ho_ContoursSplit2, "lines_circles", 5, 4,
+				2);
+			UnionCollinearContoursXld(ho_ContoursSplit2, &ho_UnionContours2, 10, 1, 10,
+				0.3, "attr_keep");
+			SelectContoursXld(ho_UnionContours2, &ho_SelectedContours2, "contour_length",
+				100, 2000, -0.5, 0.5);
+			FitLineContourXld(ho_SelectedContours2, "tukey", -1, 0, 5, 2, &hv_RowBegin2,
+				&hv_ColBegin2, &hv_RowEnd2, &hv_ColEnd2, &hv_Nr, &hv_Nc, &hv_Dist);
+			hv_row2 = hv_RowBegin2 + hv_RowEnd2;
+			TupleMin(hv_row2, &hv_Min2);
+			TupleFind(hv_row2, hv_Min2, &hv_N2);
+			GenRegionLine(&line2, HTuple(hv_RowBegin2[hv_N2]), HTuple(hv_ColBegin2[hv_N2]),
+				HTuple(hv_RowEnd2[hv_N2]), HTuple(hv_ColEnd2[hv_N2]));
+			LineOrientation(HTuple(hv_RowBegin2[hv_N2]), HTuple(hv_ColBegin2[hv_N2]), HTuple(hv_RowEnd2[hv_N2]),
+				HTuple(hv_ColEnd2[hv_N2]), &phi2);
+		}
+		else
+		{
+			phi2 = HTuple();
+		}
+
+	}
+	else
+	{
+		flag = false;
+	}
+}
+
+
+void CAreaDetectDlg::OnBnClickedButtonDetect()
+{
+	//Detect(m_Image, m_ImgOutput);
+	//DisplayImage(m_ImgOutput);
+	//HTuple tPointR, tPointG, tPointB;
+	//GetImagePointer3(m_Image, &tPointR, &tPointG, &tPointB, NULL, NULL, NULL);
+	//m_MatImage.create(512, 512, CV_8UC3);
+	//vector<Mat> vecM(3);
+	//Mat matR(()tPointR.L());	
+
+
+	GetDlgItem(IDC_BUTTON_DETECT)->SetWindowText("检测中...");
+	GetDlgItem(IDC_BUTTON_DETECT)->EnableWindow(FALSE);
+	if (!FCN_Detect())
+	{
+		GetDlgItem(IDC_BUTTON_DETECT)->SetWindowText("病变区域提取");
+		GetDlgItem(IDC_BUTTON_DETECT)->EnableWindow(TRUE);
+		return;
+	}
+	GetDlgItem(IDC_BUTTON_DETECT)->SetWindowText("病变区域提取");
+	GetDlgItem(IDC_BUTTON_DETECT)->EnableWindow(TRUE);
+
+	if (!DisplayFullImage(m_ImgOutput))
+	{
+		return;
+	}
+
+	HObject RegConnection;
+	HTuple tCount;
+	Connection(m_RegOutput, &RegConnection);
+	CountObj(RegConnection, &tCount);
+	HTuple tArea;
+	AreaCenter(RegConnection, &tArea, NULL, NULL);
+	tArea = tArea * m_dEditResolution * m_dEditResolution;
+	m_RegionList.DeleteAllItems();
+	for (int i = 0; i < tArea.Length(); i++)
+	{
+		int nItemCount = m_RegionList.GetItemCount();
+		CString strIndex, strArea;
+		strIndex.Format("%d", nItemCount + 1);
+		strArea.Format("%f", tArea[i].D());
+		int pos = m_RegionList.InsertItem(nItemCount, strIndex);
+		m_RegionList.SetItemText(pos, 1, strArea);
+
+	}
+
+	m_bExchangeDispFlag = false;
+
+}
+
+
+
+
+void CAreaDetectDlg::OnBnClickedButtonExchangedip()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_bExchangeDispFlag = !m_bExchangeDispFlag;
+	if (m_bExchangeDispFlag)
+	{
+		
+		bool bIsInit = m_Image.IsInitialized();
+		if (!bIsInit)
+			return;
+		HTuple tCount;
+		CountObj(m_Image, &tCount);
+		if (tCount == 0)
+			return;
+		ShowImage(m_Image);
+	}
+	else
+	{
+		bool bIsInit = m_ImgOutput.IsInitialized();
+		if (!bIsInit)
+			return;
+		HTuple tCount;
+		CountObj(m_ImgOutput, &tCount);
+		if (tCount == 0)
+			return;
+		ShowImage(m_ImgOutput);
+	}
+
+}
+
+
+
+bool CAreaDetectDlg::FCN_Detect()
+{
+	bool bIsInit = m_Image.IsInitialized();
+	if (!bIsInit)
+		return false;
+	HTuple tCount;
+	CountObj(m_Image, &tCount);
+	if (tCount == 0)
+		return false;
+	
+	int nRowTop, nColLeft;
+	HObject ImgCrop, ImgZoom;
+	HTuple tWidth, tHeight;
+	ImgCrop = DomainCrop(m_Image, nRowTop, nColLeft);
+	GetImageSize(ImgCrop, &tWidth, &tHeight);
+	ZoomImageSize(ImgCrop, &ImgZoom, 512, 512, "constant");
+	m_MatImage = HObject2Mat(ImgZoom);
+	vector<Mat> result_images = g_handle.V_ss_infer(m_MatImage);
+	HObject Img, ImgOutput, ho_Image1, ho_Image2, ho_Image3, ho_RegionFillUp, Output1, RegZoom;
+	Img = Mat2HObject(result_images[0]);
+	Threshold(Img, &ImgOutput, 220, 255);
+	FillUp(ImgOutput, &ho_RegionFillUp);
+	ZoomRegion(ho_RegionFillUp, &RegZoom, tWidth / 512.0, tHeight / 512.0);
+
+	MoveRegion(RegZoom, &m_RegOutput, nRowTop, nColLeft);
+	Decompose3(m_Image, &ho_Image1, &ho_Image2, &ho_Image3);
+	PaintRegion(m_RegOutput, ho_Image2, &Output1, 255, "fill");
+	Compose3(ho_Image1, Output1, ho_Image3, &m_ImgOutput);
+
+	return true;
+}
+
+
+
+
+
+
+void CAreaDetectDlg::OnNMClickList2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	//int n = m_ImageList.GetNextItem(-1, LVIS_SELECTED);
+	//POSITION pos = m_ImageList.GetFirstSelectedItemPosition();
+	//if (pos == NULL)
+	//{
+	//	if (m_nImageListCurrentItem != -1)
+	//	{
+	//		m_ImageList.SetItemState(m_nImageListCurrentItem, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
+	//	}
+	//	return;
+	//}
+	//int nSelectedIndex = m_ImageList.GetNextSelectedItem(pos);
+	//m_nImageListCurrentItem = nSelectedIndex;
+	//GetDlgItem(IDC_STATIC_IMGPATH)->SetWindowText("当前图片：" + m_ImageList.GetItemText(m_nImageListCurrentItem, 1));
+
+	/*CString str;
+	str.Format("%d", n);
+	::MessageBox(NULL, str, "提示", MB_OK);*/
+	*pResult = 0;
+}
+
+
+
+
+
+
+
+void CAreaDetectDlg::OnLvnItemchangedList2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+
+	if (LVIF_STATE == pNMLV->uChanged)
+	{
+		if (pNMLV->uNewState == (LVIS_FOCUSED | LVIS_SELECTED))
+		{
+			m_nImageListCurrentItem = m_ImageList.GetNextItem(-1, LVIS_SELECTED);
+			m_strFilename = m_ImageList.GetItemText(m_nImageListCurrentItem, 1);
+			GetDlgItem(IDC_STATIC_IMGPATH)->SetWindowText("当前图片：" + m_strFilename);
+			Mat img;
+			img = imread(m_strFilename.GetBuffer());
+			m_Image = Mat2HObject(img);
+			m_ImgOutput = m_Image;
+			//ReadImage(&m_Image, m_strFilename.GetBuffer());
+			DisplayFullImage(m_Image);
+			m_RegionList.DeleteAllItems();
+			GenEmptyObj(&m_RegOutput);
+		}
+	}
+	*pResult = 0;
+}
+
+
+void CAreaDetectDlg::OnBnClickedCheckModify()//手动增加区域
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!m_RegOutput.IsInitialized() || !m_Image.IsInitialized())
+	{
+		((CButton *)GetDlgItem(IDC_CHECK_MODIFY))->SetCheck(0);
+		return;
+	}
+	int nState = ((CButton *)GetDlgItem(IDC_CHECK_MODIFY))->GetCheck();
+	if (nState == 1)
+	{
+		HObject Reg, ho_Image1, ho_Image2, ho_Image3, Output1;
+		SetColor(m_HWindowID, "red");
+		((CButton *)GetDlgItem(IDC_CHECK_MODIFY))->EnableWindow(FALSE);
+		bZoomFlag = false;
+		DrawRegion(&Reg, m_HWindowID);
+		bZoomFlag = true;
+		Union2(Reg, m_RegOutput, &m_RegOutput);
+		Decompose3(m_Image, &ho_Image1, &ho_Image2, &ho_Image3);
+		PaintRegion(m_RegOutput, ho_Image2, &Output1, 255, "fill");
+		Compose3(ho_Image1, Output1, ho_Image3, &m_ImgOutput);
+
+		if (!ShowImage(m_ImgOutput))
+		{
+			return;
+		}
+		UpdateAreaDisplayList();
+		((CButton *)GetDlgItem(IDC_CHECK_MODIFY))->EnableWindow(TRUE);
+		((CButton *)GetDlgItem(IDC_CHECK_MODIFY))->SetCheck(0);
+	}
+
+	//HTuple tR, tC;
+	//DrawPoint(m_HWindowID, &tR, &tC);
+
+}
+
+
+void CAreaDetectDlg::OnBnClickedCheck3()//手动去除区域
+{
+	// TODO: Add your control notification handler code here
+
+	if (!m_RegOutput.IsInitialized() || !m_Image.IsInitialized())
+	{
+		((CButton *)GetDlgItem(IDC_CHECK3))->SetCheck(0);
+		return;
+	}
+
+	int nState = ((CButton *)GetDlgItem(IDC_CHECK3))->GetCheck();
+	if (nState == 1)
+	{
+		HObject Reg, ho_Image1, ho_Image2, ho_Image3, Output1;
+		SetColor(m_HWindowID, "red");
+		((CButton *)GetDlgItem(IDC_CHECK3))->EnableWindow(FALSE);
+		bZoomFlag = false;
+		DrawRegion(&Reg, m_HWindowID);
+		bZoomFlag = true;
+		Difference(m_RegOutput, Reg, &m_RegOutput);
+		Decompose3(m_Image, &ho_Image1, &ho_Image2, &ho_Image3);
+		PaintRegion(m_RegOutput, ho_Image2, &Output1, 255, "fill");
+		Compose3(ho_Image1, Output1, ho_Image3, &m_ImgOutput);
+
+		if (!ShowImage(m_ImgOutput))
+		{
+			return;
+		}
+		UpdateAreaDisplayList();
+		((CButton *)GetDlgItem(IDC_CHECK3))->EnableWindow(TRUE);
+		((CButton *)GetDlgItem(IDC_CHECK3))->SetCheck(0);
+	}
+
+}
+void CAreaDetectDlg::UpdateAreaDisplayList()
+{
+	HObject RegConnection;
+	HTuple tCount, tRegOutputCount;
+	if (!m_RegOutput.IsInitialized())
+	{
+		m_RegionList.DeleteAllItems();
+		return;
+	}
+	CountObj(m_RegOutput, &tRegOutputCount);
+	if (tRegOutputCount.I() == 0)
+	{
+		m_RegionList.DeleteAllItems();
+		return;
+	}
+	Connection(m_RegOutput, &RegConnection);
+	CountObj(RegConnection, &tCount);
+	HTuple tArea;
+	AreaCenter(RegConnection, &tArea, NULL, NULL);
+	tArea = tArea * m_dEditResolution * m_dEditResolution;
+	m_RegionList.DeleteAllItems();
+	for (int i = 0; i < tArea.Length(); i++)
+	{
+		int nItemCount = m_RegionList.GetItemCount();
+		CString strIndex, strArea;
+		strIndex.Format("%d", nItemCount + 1);
+		strArea.Format("%f", tArea[i].D());
+		int pos = m_RegionList.InsertItem(nItemCount, strIndex);
+		m_RegionList.SetItemText(pos, 1, strArea);
+
+	}
+}
+
+void CAreaDetectDlg::OnBnClickedCheck4()//画标尺标定
+{
+	// TODO: Add your control notification handler code here
+
+	CString str;
+	GetDlgItemText(IDC_EDIT2, str);
+	m_dEditRealLength = atof(str);
+	int nState = ((CButton *)GetDlgItem(IDC_CHECK4))->GetCheck();
+	if (nState == 1)
+	{
+		HObject Reg;
+		HTuple hv_Row1, hv_Column1, hv_Row2, hv_Column2, hv_Distance;
+		((CButton *)GetDlgItem(IDC_CHECK4))->EnableWindow(FALSE);
+		SetColor(m_HWindowID, "blue");
+		DrawLine(m_HWindowID, &hv_Row1, &hv_Column1, &hv_Row2, &hv_Column2);
+		DistancePp(hv_Row1, hv_Column1, hv_Row2, hv_Column2, &hv_Distance);
+		m_dDistance = hv_Distance.D();
+		m_dEditResolution = m_dEditRealLength / m_dDistance;
+		UpdateAreaDisplayList();
+
+	}
+	((CButton *)GetDlgItem(IDC_CHECK4))->EnableWindow(TRUE);
+	((CButton *)GetDlgItem(IDC_CHECK4))->SetCheck(0);
+	str.Format("%f", m_dEditResolution);
+	SetDlgItemText(IDC_EDIT1, str);
+	str.Format("%f", m_dDistance);
+	SetDlgItemText(IDC_EDIT3, str);
+}
+void CAreaDetectDlg::OnEnChangeEdit1()//分辨率
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialogEx::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+
+	//CString str;
+	//str.Format("%f", m_dEditRealLength);
+	//SetDlgItemText(IDC_EDIT1, str);
+}
+void CAreaDetectDlg::OnEnChangeEdit2()//真实距离
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialogEx::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+	CString str;
+	GetDlgItemText(IDC_EDIT2, str);
+	m_dEditRealLength = atof(str);
+	m_dEditResolution = m_dEditRealLength / m_dDistance;
+	UpdateAreaDisplayList();
+}
+void CAreaDetectDlg::OnBnClickedButtonOpenfolder4()//批量输出
+{
+	// TODO: Add your control notification handler code here
+	std::string str = "resultFile.txt";
+	ofstream outfile(str.c_str(), ios::app);
+	outfile << m_strFilename.GetBuffer();
+	outfile << " ";
+
+	HObject RegConnection;
+	HTuple tCount;
+	Connection(m_RegOutput, &RegConnection);
+	CountObj(RegConnection, &tCount);
+	HTuple tArea;
+	AreaCenter(RegConnection, &tArea, NULL, NULL);
+	tArea = tArea * m_dEditResolution * m_dEditResolution;
+	for (int i = 0; i < tArea.Length(); i++)
+	{
+		CString strIndex, strArea;
+		//strIndex.Format("%d", nItemCount + 1);
+		strArea.Format("%f", tArea[i].D());
+		outfile << strArea.GetBuffer();
+		outfile << " ";
+		//int pos = m_RegionList.InsertItem(nItemCount, strIndex);
+		//m_RegionList.SetItemText(pos, 1, strArea);
+
+	}
+	outfile << "\n";
+	outfile.close();
+}
+
+
+bool CAreaDetectDlg::ShowImage(HObject ho_Image)
+{
+	bool bIsInit = ho_Image.IsInitialized();
+	if (!bIsInit)
+		return false;
+	HTuple tCount;
+	CountObj(ho_Image, &tCount);
+	if (tCount == 0)
+		return false;
+
+	if (m_HWindowID != 0)
+	{
+		SetSystem("flush_graphic", "false");
+		ClearWindow(m_HWindowID);
+		//显示
+		if (ho_Image.IsInitialized())
+		{
+		}
+
+		SetSystem("flush_graphic", "true");
+		HObject emptyObject;
+		emptyObject.GenEmptyObj();
+		DispObj(emptyObject, m_HWindowID);
+	}
+	return true;
+}
+
+
+BOOL CAreaDetectDlg::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	// TODO: Add your message handler code here and/or call default
+	if(!bZoomFlag)
+		return CDialogEx::OnMouseWheel(nFlags, zDelta, pt);
+
+	CRect rtImage;
+	GetDlgItem(IDC_STATIC)->GetWindowRect(&rtImage);
+	if (rtImage.PtInRect(pt) && m_Image.IsInitialized())
+	{
+		Hlong  ImagePtX, ImagePtY;
+		Hlong  Row0, Col0, Row1, Col1;
+		double Scale = 0.1;
+
+		if (zDelta<0)
+		{
+			ImagePtX = m_dDispImagePartCol0 + (pt.x - rtImage.left) / (rtImage.Width() - 1.0)*(m_dDispImagePartCol1 - m_dDispImagePartCol0);
+			ImagePtY = m_dDispImagePartRow0 + (pt.y - rtImage.top) / (rtImage.Height() - 1.0)*(m_dDispImagePartRow1 - m_dDispImagePartRow0);
+			Row0 = ImagePtY - 1 / (1 - Scale)*(ImagePtY - m_dDispImagePartRow0);
+			Row1 = ImagePtY - 1 / (1 - Scale)*(ImagePtY - m_dDispImagePartRow1);
+			Col1 = ImagePtX - 1 / (1 - Scale)*(ImagePtX - m_dDispImagePartCol1);
+
+			m_dDispImagePartRow0 = Row0;
+			m_dDispImagePartCol0 = Col0;
+			m_dDispImagePartCol1 = Col1;
+		}
+		else
+		{
+			ImagePtX = m_dDispImagePartCol0 + (pt.x - rtImage.left) / (rtImage.Width() - 1.0)*(m_dDispImagePartCol1 - m_dDispImagePartCol0);
+			ImagePtY = m_dDispImagePartRow0 + (pt.y - rtImage.top) / (rtImage.Height() - 1.0)*(m_dDispImagePartRow1 - m_dDispImagePartRow0);
+			Row0 = ImagePtY - 1 / (1 + Scale)*(ImagePtY - m_dDispImagePartRow0);
+			Row1 = ImagePtY - 1 / (1 + Scale)*(ImagePtY - m_dDispImagePartRow1);
+			Col0 = ImagePtX - 1 / (1 + Scale)*(ImagePtX - m_dDispImagePartCol0);
+			Col1 = ImagePtX - 1 / (1 + Scale)*(ImagePtX - m_dDispImagePartCol1);
+		}
+		if(m_bExchangeDispFlag)
+			ShowImage(m_Image);
+		else
+			ShowImage(m_ImgOutput);
+	}
+	return CDialogEx::OnMouseWheel(nFlags, zDelta, pt);
+}
+
+
+void CAreaDetectDlg::OnBnClickedButtonDisplayfullimg()
+{
+	// TODO: Add your control notification handler code here
+	bool bIsInit = m_Image.IsInitialized();
+	if (!bIsInit)
+		return;
+	HTuple tCount;
+	CountObj(m_Image, &tCount);
+	if (tCount == 0)
+		return;
+	DisplayFullImage(m_Image);
+}
+
+
+// AreaDetect.cpp : 定义应用程序的类行为。
+//
+
+#include "stdafx.h"
+#include "AreaDetect.h"
+#include "AreaDetectDlg.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+
+// CAreaDetectApp
+
+BEGIN_MESSAGE_MAP(CAreaDetectApp, CWinApp)
+	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
+END_MESSAGE_MAP()
+
+
+// CAreaDetectApp 构造
+
+CAreaDetectApp::CAreaDetectApp()
+{
+	// 支持重新启动管理器
+	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
+
+	// TODO: 在此处添加构造代码，
+	// 将所有重要的初始化放置在 InitInstance 中
+}
+
+
+// 唯一的一个 CAreaDetectApp 对象
+
+CAreaDetectApp theApp;
+
+
+// CAreaDetectApp 初始化
+
+BOOL CAreaDetectApp::InitInstance()
+{
+	// 如果一个运行在 Windows XP 上的应用程序清单指定要
+	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
+	//则需要 InitCommonControlsEx()。  否则，将无法创建窗口。
+	INITCOMMONCONTROLSEX InitCtrls;
+	InitCtrls.dwSize = sizeof(InitCtrls);
+	// 将它设置为包括所有要在应用程序中使用的
+	// 公共控件类。
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls);
+
+	CWinApp::InitInstance();
+
+
+	AfxEnableControlContainer();
+
+	// 创建 shell 管理器，以防对话框包含
+	// 任何 shell 树视图控件或 shell 列表视图控件。
+	CShellManager *pShellManager = new CShellManager;
+
+	// 激活“Windows Native”视觉管理器，以便在 MFC 控件中启用主题
+	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+
+	// 标准初始化
+	// 如果未使用这些功能并希望减小
+	// 最终可执行文件的大小，则应移除下列
+	// 不需要的特定初始化例程
+	// 更改用于存储设置的注册表项
+	// TODO: 应适当修改该字符串，
+	// 例如修改为公司或组织名
+	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+
+	CAreaDetectDlg dlg;
+	m_pMainWnd = &dlg;
+	INT_PTR nResponse = dlg.DoModal();
+	if (nResponse == IDOK)
+	{
+		// TODO: 在此放置处理何时用
+		//  “确定”来关闭对话框的代码
+	}
+	else if (nResponse == IDCANCEL)
+	{
+		// TODO: 在此放置处理何时用
+		//  “取消”来关闭对话框的代码
+	}
+	else if (nResponse == -1)
+	{
+		TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+		TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+	}
+
+	// 删除上面创建的 shell 管理器。
+	if (pShellManager != NULL)
+	{
+		delete pShellManager;
+	}
+
+#ifndef _AFXDLL
+	ControlBarCleanUp();
+#endif
+
+	// 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
+	//  而不是启动应用程序的消息泵。
+	return FALSE;
+}
+
+
+
+
+
