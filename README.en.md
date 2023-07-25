@@ -21,7 +21,7 @@ The development language is C++.
 The folder 'TestSet' contains test images of cabbage lesions, which can be used for software testing.
 
 
-####tips
+#### tips
 1. The system version requires Windows 7 or higher, 64 bit
 2. Install Visual Studio 2015 software in advance and add C++modules.
 
